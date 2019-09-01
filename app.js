@@ -19,12 +19,7 @@ const sendMail = async (firstName, lastName, fromEmail, text) => {
     allowedAttributes: {}
   });
 
-  const basicText = `
-    Rachel Shaw Studio - Contact Form
-    Respond to: ${fromEmail}
-    Message:
-    ${sanitizedText}
-  `;
+  const basicText = `Rachel Shaw Studio - Contact Form\nRespond to: ${fromEmail}\nMessage:\n${sanitizedText}`;
 
   // Create our Base API Client
   const client = new Client(token);
@@ -38,10 +33,12 @@ const sendMail = async (firstName, lastName, fromEmail, text) => {
       `<h1>Rachel Shaw Studio - Contact Form</h1><h3>Respond to: ${fromEmail}</h3><p>${sanitizedText}</p><a href="rachelshawstudio.com">rachelshawstudio.com</a>`,
       basicText
     )
-    .then(() => {
+    .then(res => {
+      console.info(res);
       return 200;
     })
-    .catch(() => {
+    .catch(rej => {
+      console.info(rej);
       return 500;
     });
 
