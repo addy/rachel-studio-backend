@@ -5,14 +5,14 @@ const { Client } = require('base-api-io');
 
 const app = express();
 const port = process.env.PORT || 5000;
-const user = process.env.USER_EMAIL || undefined;
-const token = process.env.ACCESS_TOKEN || undefined;
+const user = process.env.USER_EMAIL || null;
+const token = process.env.ACCESS_TOKEN || null;
 
 app.use(express.json());
 app.use(express.urlencoded());
 
 const sendMail = async (firstName, lastName, fromEmail, text) => {
-  if (user === undefined || token === undefined) return 500;
+  if (user === null || token === null) return 500;
 
   const sanitizedText = sanitizeHtml(text, {
     allowedTags: [],
@@ -47,9 +47,11 @@ const sendMail = async (firstName, lastName, fromEmail, text) => {
 
 app.post('/api/contact', (req, res) => {
   const { firstName, lastName, email, message } = req.body;
-  sendMail(firstName, lastName, email, message).then(responseCode => {
-    res.sendStatus(responseCode);
-  });
+  sendMail(firstName, lastName, email, message)
+    .then(responseCode => {
+      res.sendStatus(responseCode);
+    })
+    .catch(err => console.info(err));
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
