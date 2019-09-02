@@ -53,7 +53,10 @@ app.post('/api/contact', (req, res) => {
     .then(responseCode => {
       res.sendStatus(responseCode);
     })
-    .catch(err => console.info(err));
+    .catch(err => {
+      console.info(err);
+      res.sendStatus(500);
+    });
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+app.listen(port, () => console.log(`Listening on port ${port}`));
