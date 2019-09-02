@@ -8,11 +8,14 @@ const port = process.env.PORT || 5000;
 const user = process.env.USER_EMAIL || null;
 const token = process.env.ACCESS_TOKEN || null;
 
+if (!user) throw Error('Missing USER_EMAIL environment variable');
+if (!token) throw Error('Missing ACCESS_TOKEN environment variable');
+
 app.use(express.json());
 app.use(express.urlencoded());
 
-const sendMail = async (firstName, lastName, fromEmail, text) => {
-  if (user === null || token === null) return 500;
+const sendMail = async ({ firstName, lastName, fromEmail, text }) => {
+  if (!firstName || !lastName || !fromEmail || !text) return 500;
 
   const sanitizedText = sanitizeHtml(text, {
     allowedTags: [],
@@ -46,8 +49,7 @@ const sendMail = async (firstName, lastName, fromEmail, text) => {
 };
 
 app.post('/api/contact', (req, res) => {
-  const { firstName, lastName, email, message } = req.body;
-  sendMail(firstName, lastName, email, message)
+  sendMail(req.body)
     .then(responseCode => {
       res.sendStatus(responseCode);
     })
