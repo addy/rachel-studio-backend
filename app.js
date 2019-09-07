@@ -3,6 +3,7 @@ const express = require('express');
 const redis = require('redis');
 const bcrypt = require('bcrypt');
 const passport = require('passport');
+const uuidv4 = require('uuid/v4');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const sanitizeHtml = require('sanitize-html');
@@ -128,6 +129,7 @@ app.post('/api/user', (req, res) => {
               res.status(500).send({ message: 'Could not hash password.' });
             } else {
               redisClient.hmset(email, {
+                id: uuidv4(),
                 email,
                 password: hash
               });
