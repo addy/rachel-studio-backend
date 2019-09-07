@@ -32,7 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(
   session({
-    store: new RedisStore({ redisClient }),
+    store: new RedisStore({ client: redisClient }),
     secret: 'test',
     resave: false,
     saveUninitialized: false
