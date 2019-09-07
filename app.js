@@ -14,15 +14,15 @@ if (!token) throw Error('Missing ACCESS_TOKEN environment variable');
 app.use(express.json());
 app.use(express.urlencoded());
 
-const sendMail = async ({ firstName, lastName, fromEmail, text }) => {
-  if (!firstName || !lastName || !fromEmail || !text) return 500;
+const sendMail = async ({ firstName, lastName, email, message }) => {
+  if (!firstName || !lastName || !email || !message) return 500;
 
-  const sanitizedText = sanitizeHtml(text, {
+  const sanitizedText = sanitizeHtml(message, {
     allowedTags: [],
     allowedAttributes: {}
   });
 
-  const basicText = `Rachel Shaw Studio - Contact Form\nRespond to: ${fromEmail}\nMessage:\n${sanitizedText}`;
+  const basicText = `Rachel Shaw Studio - Contact Form\nRespond to: ${email}\nMessage:\n${sanitizedText}`;
 
   // Create our Base API Client
   const client = new Client(token);
@@ -30,10 +30,10 @@ const sendMail = async ({ firstName, lastName, fromEmail, text }) => {
   // Doesn't look like the service handles from correctly :(
   const status = await client.emails
     .send(
-      `rachelshawstudio.com - Contact from (${lastName}, ${firstName} <${fromEmail}>)`,
-      fromEmail,
+      `rachelshawstudio.com - Contact from (${lastName}, ${firstName} <${email}>)`,
+      'admin@rachelshawstudio.com',
       user,
-      `<h1>Rachel Shaw Studio - Contact Form</h1><h3>Respond to: ${fromEmail}</h3><p>${sanitizedText}</p><a href="rachelshawstudio.com">rachelshawstudio.com</a>`,
+      `<h1>Rachel Shaw Studio - Contact Form</h1><h3>Respond to: ${email}</h3><p>${sanitizedText}</p><a href="rachelshawstudio.com">rachelshawstudio.com</a>`,
       basicText
     )
     .then(res => {
