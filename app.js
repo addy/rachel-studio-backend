@@ -40,22 +40,46 @@ app.use(
   })
 );
 
+const findUserByID = (id, callback) => {
+  redisClient.hgetall(id, (err, user) => {
+    if (err) return callback(err);
+
+    if (!user) {
+      const error = new Error('Incorrect email or password');
+      error.name = 'IncorrectCredentialsError';
+
+      return callback(error);
+    }
+
+    callback(null, user);
+  });
+};
+
+const findUserByEmail = (email, callback) => {
+  redisClient.hgetall(email, (err, user) => {
+    if (err) return callback(err);
+
+    if (!user) {
+      const error = new Error('Incorrect email or password');
+      error.name = 'IncorrectCredentialsError';
+
+      return callback(error);
+    }
+
+    callback(null, user);
+  });
+};
+
 passport.use(
   new LocalStrategy(
     {
       usernameField: 'email',
       passwordField: 'password'
     },
-    (username, password, done) => {
-      redisClient.hgetall(username, (err, user) => {
+    (email, password, done) => {
+      findUserByEmail(email, (err, user) => {
         if (err) return done(err);
-
-        if (!user) {
-          const error = new Error('Incorrect email or password');
-          error.name = 'IncorrectCredentialsError';
-
-          return done(error);
-        }
+        if (!user) return done(null, false);
 
         bcrypt.compare(password, user.password, (bErr, valid) => {
           if (bErr) return done(bErr);
@@ -66,6 +90,9 @@ passport.use(
     }
   )
 );
+
+passport.serializeUser((user, cb) => cb(null, user.id));
+passport.deserializeUser((id, cb) => findUserByID(id, cb));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -128,13 +155,20 @@ app.post('/api/user', (req, res) => {
             if (hashErr) {
               res.status(500).send({ message: 'Could not hash password.' });
             } else {
-              redisClient.hmset(email, {
-                id: uuidv4(),
+              const id = uuidv4();
+              redisClient.hmset(id, {
+                id,
                 email,
                 password: hash
               });
 
-              res.sendStatus(200);
+              redisClient.hmset(email, {
+                id,
+                email,
+                password: hash
+              });
+
+              res.status(200).send({ id, email });
             }
           });
         }
