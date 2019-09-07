@@ -66,6 +66,9 @@ passport.use(
   )
 );
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 const sendMail = async ({ firstName, lastName, email, message }) => {
   if (!firstName || !lastName || !email || !message) return 500;
 
