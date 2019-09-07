@@ -177,6 +177,8 @@ app.post('/api/user', (req, res) => {
   });
 });
 
-app.post('/api/login', passport.authenticate('local'));
+app.post('/api/login', passport.authenticate('local'), (req, res) => {
+  res.status(200).send(req.user.id);
+});
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
