@@ -1,27 +1,28 @@
 /* eslint-disable import/order */
 /* eslint-disable no-console */
-require('dotenv').config();
-const express = require('express');
-const cookieParser = require('cookie-parser');
-const redis = require('redis');
-const log4js = require('log4js');
-const cors = require('cors');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const passport = require('passport');
-const uuidv4 = require('uuid/v4');
-const LocalStrategy = require('passport-local').Strategy;
-const session = require('express-session');
-const sanitizeHtml = require('sanitize-html');
-const { Client } = require('base-api-io');
-const RedisStore = require('connect-redis')(session);
-const { checkEnvironment } = require('./utils');
-const { checkBearerToken } = require('./middleware');
+require("dotenv").config();
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const redis = require("redis");
+const log4js = require("log4js");
+const cors = require("cors");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const passport = require("passport");
+const uuidv4 = require("uuid/v4");
+const LocalStrategy = require("passport-local").Strategy;
+const session = require("express-session");
+const sanitizeHtml = require("sanitize-html");
+const { Client } = require("base-api-io");
+const RedisStore = require("connect-redis")(session);
+const { checkEnvironment } = require("./utils");
+const { checkBearerToken } = require("./middleware");
 
 // ENV config variables
 const port = process.env.PORT || 5000;
-const logDir = process.env.LOG_DIRECTORY || '/var/log/studio-backend-output.log';
-const fromEmail = process.env.FROM_EMAIL || 'admin@rachelshawstudio.com';
+const logDir =
+  process.env.LOG_DIRECTORY || "/var/log/studio-backend-output.log";
+const fromEmail = process.env.FROM_EMAIL || "admin@rachelshawstudio.com";
 const userEmail = process.env.USER_EMAIL || null;
 const baseToken = process.env.BASE_ACCESS_TOKEN || null;
 const stripeToken = process.env.STRIPE_ACCESS_TOKEN || null;
@@ -41,7 +42,7 @@ checkEnvironment({
 const app = express();
 const redisClient = redis.createClient();
 const baseClient = new Client(baseToken);
-const stripe = require('stripe')(stripeToken);
+const stripe = require("stripe")(stripeToken);
 
 // Middleware
 app.use(express.json());
@@ -49,7 +50,7 @@ app.use(express.urlencoded());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: 'https://rachelshawstudio.com',
+    origin: "https://rachelshawstudio.com",
     optionsSuccessStatus: 200
   })
 );
@@ -68,8 +69,8 @@ const findUserByToken = (token, callback) => {
     if (err) return callback(err);
 
     if (!user) {
-      const error = new Error('Incorrect email or password');
-      error.name = 'IncorrectCredentialsError';
+      const error = new Error("Incorrect email or password");
+      error.name = "IncorrectCredentialsError";
 
       return callback(error);
     }
@@ -83,8 +84,8 @@ const findUserByEmail = (email, callback) => {
     if (err) return callback(err);
 
     if (!user) {
-      const error = new Error('Incorrect email or password');
-      error.name = 'IncorrectCredentialsError';
+      const error = new Error("Incorrect email or password");
+      error.name = "IncorrectCredentialsError";
 
       return callback(error);
     }
@@ -97,8 +98,8 @@ const findUserByEmail = (email, callback) => {
 passport.use(
   new LocalStrategy(
     {
-      usernameField: 'email',
-      passwordField: 'password'
+      usernameField: "email",
+      passwordField: "password"
     },
     (email, password, done) => {
       findUserByEmail(email, (err, user) => {
@@ -125,38 +126,42 @@ app.use(passport.session());
 // Logging
 log4js.configure({
   appenders: {
-    file: { type: 'file', filename: logDir }
+    file: { type: "file", filename: logDir }
   },
   categories: {
-    default: { appenders: ['file'], level: 'info' }
+    default: { appenders: ["file"], level: "info" }
   }
 });
 
-const logger = log4js.getLogger('default');
+const logger = log4js.getLogger("default");
 app.use(
   log4js.connectLogger(logger, {
-    level: 'info',
+    level: "info",
     format: (req, res, format) =>
       format(
         `:remote-addr ${
-          req.user ? `- ${JSON.stringify(req.user)} - ` : ''
+          req.user ? `- ${JSON.stringify(req.user)} - ` : ""
         }":method :url HTTP/:http-version" :status :content-length ":referrer" ":user-agent"${
-          req.method === 'POST' || req.method === 'PUT' ? ` ${JSON.stringify(req.body)}` : ''
+          req.method === "POST" || req.method === "PUT"
+            ? ` ${JSON.stringify(req.body)}`
+            : ""
         }`
       )
   })
 );
 
 // Routes
-app.get('/api/user', checkBearerToken, (req, res) => {
+app.get("/api/user", checkBearerToken, (req, res) => {
   const { decoded } = req;
   res.status(200).send({ user: decoded });
 });
 
-app.post('/api/contact', (req, res) => {
+app.post("/api/contact", (req, res) => {
   const { firstName, lastName, email, message } = req.body;
   if (!firstName || !lastName || !email || !message)
-    res.status(500).send({ message: 'Missing required parameters to send email' });
+    res
+      .status(500)
+      .send({ message: "Missing required parameters to send email" });
 
   // Cut out any HTML tags that users inserted into the message.
   const sanitizedText = sanitizeHtml(message, {
@@ -182,25 +187,25 @@ app.post('/api/contact', (req, res) => {
       res.sendStatus(200);
     })
     .catch(() => {
-      res.status(500).send({ message: 'Failed to send email' });
+      res.status(500).send({ message: "Failed to send email" });
     });
 });
 
-app.post('/api/user', (req, res) => {
+app.post("/api/user", (req, res) => {
   const { email, password } = req.body;
   redisClient.exists(email, (err, reply) => {
     if (err) {
-      res.status(500).send({ message: 'Could not check Redis.' });
+      res.status(500).send({ message: "Could not check Redis." });
     } else if (reply) {
-      res.status(409).send({ message: 'User already exists.' });
+      res.status(409).send({ message: "User already exists." });
     } else {
       bcrypt.genSalt(10, (saltErr, salt) => {
         if (saltErr) {
-          res.status(500).send({ message: 'Could not salt password.' });
+          res.status(500).send({ message: "Could not salt password." });
         } else {
           bcrypt.hash(password, salt, (hashErr, hash) => {
             if (hashErr) {
-              res.status(500).send({ message: 'Could not hash password.' });
+              res.status(500).send({ message: "Could not hash password." });
             } else {
               const id = uuidv4();
               // Bearer token is a signature of User ID & User Email.
@@ -224,7 +229,7 @@ app.post('/api/user', (req, res) => {
   });
 });
 
-app.post('/api/login', passport.authenticate('local'), (req, res) => {
+app.post("/api/login", passport.authenticate("local"), (req, res) => {
   const { token } = req.user;
   res.status(200).send({ token });
 });
