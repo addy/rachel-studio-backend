@@ -128,6 +128,11 @@ const sendMail = async ({ firstName, lastName, email, message }) => {
   return status;
 };
 
+app.get('/api/user', passport.authenticate('local'), (req, res) => {
+  const { user } = req;
+  res.status(200).send({ user });
+});
+
 app.post('/api/contact', (req, res) => {
   sendMail(req.body)
     .then(responseCode => {
