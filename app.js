@@ -63,8 +63,8 @@ app.use(
 );
 
 // User retrieval helper functions
-const findUserByID = (id, callback) => {
-  redisClient.hgetall(id, (err, user) => {
+const findUserByToken = (token, callback) => {
+  redisClient.hgetall(token, (err, user) => {
     if (err) return callback(err);
 
     if (!user) {
@@ -74,7 +74,7 @@ const findUserByID = (id, callback) => {
       return callback(error);
     }
 
-    callback(null, user);
+    return callback(null, user);
   });
 };
 
@@ -89,7 +89,7 @@ const findUserByEmail = (email, callback) => {
       return callback(error);
     }
 
-    callback(null, user);
+    return callback(null, user);
   });
 };
 
@@ -116,8 +116,8 @@ passport.use(
   )
 );
 
-passport.serializeUser((user, cb) => cb(null, user.id));
-passport.deserializeUser((id, cb) => findUserByID(id, cb));
+passport.serializeUser((user, cb) => cb(null, user.token));
+passport.deserializeUser((token, cb) => findUserByToken(token, cb));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -212,7 +212,6 @@ app.post('/api/user', (req, res) => {
                 password: hash
               };
 
-              redisClient.hmset(id, user);
               redisClient.hmset(email, user);
               redisClient.hmset(token, user);
 
