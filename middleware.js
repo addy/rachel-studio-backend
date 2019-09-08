@@ -5,7 +5,7 @@ module.exports.checkBearerToken = (req, res, next) => {
 
   if (authorization) {
     if (authorization.startsWith('Bearer ')) authorization = authorization.slice(7, authorization);
-    jwt.verify(authorization, process.env.AUTH_SECRET, (err, decoded) => {
+    return jwt.verify(authorization, process.env.AUTH_SECRET, (err, decoded) => {
       if (err) {
         return res.status(401).send({ message: 'Unauthorized' });
       }
