@@ -2,6 +2,7 @@
 /* eslint-disable no-console */
 require('dotenv').config();
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const redis = require('redis');
 const log4js = require('log4js');
 const cors = require('cors');
@@ -45,7 +46,7 @@ const stripe = require('stripe')(stripeToken);
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded());
-app.use(express.cookieParser());
+app.use(cookieParser());
 app.use(
   cors({
     origin: 'https://rachelshawstudio.com',
