@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 module.exports.checkBearerToken = (req, res, next) => {
   let { authorization } = req.headers;
 
+  if (authorization === null || authorization === undefined) authorization = req.user.token;
+
   authorization = authorization.trim();
   if (authorization) {
     if (authorization.startsWith('Bearer ')) {

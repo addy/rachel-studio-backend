@@ -58,7 +58,8 @@ app.use(
     store: new RedisStore({ client: redisClient }),
     secret: sessionSecret,
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    ttl: 60 * 60
   })
 );
 
@@ -140,7 +141,9 @@ app.use(
       format(
         `:remote-addr ${
           req.user ? `- ${JSON.stringify(req.user)} - ` : ''
-        }":method :url HTTP/:http-version" :status :content-length ":referrer" ":user-agent"${
+        }":method :url HTTP/:http-version" - ${JSON.stringify(
+          req.headers
+        )} - :status :content-length ":referrer" ":user-agent"${
           req.method === 'POST' || req.method === 'PUT' ? ` ${JSON.stringify(req.body)}` : ''
         }`
       )
