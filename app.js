@@ -6,10 +6,9 @@ const cookieParser = require('cookie-parser');
 const log4js = require('log4js');
 const cors = require('cors');
 const sanitizeHtml = require('sanitize-html');
-const jwt = require('express-jwt');
-const jwksRsa = require('jwks-rsa');
 const { Client } = require('base-api-io');
 const { checkEnvironment } = require('./utils');
+const { checkAccessToken, checkPermission } = require('./authMiddleware');
 
 // ENV config variables
 const port = process.env.PORT || 5000;
@@ -45,20 +44,6 @@ app.use(
 );
 app.use(express.urlencoded());
 app.use(cookieParser());
-
-// Auth Middleware
-const checkJwt = jwt({
-  secret: jwksRsa.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: `https://${domain}/.well-known/jwks.json`
-  }),
-
-  audience,
-  issuer: `https://${domain}/`,
-  algorithm: ['RS256']
-});
 
 // Logging
 log4js.configure({
@@ -142,11 +127,8 @@ app.post('/api/charge', async (req, res) => {
 });
 
 // Auth routes
-app.get('/api/external', checkJwt, (req, res) => {
-  res.status(200).send({ message: 'Your Access Token was successfully validated!' });
-});
-
-app.get('/api/noauth', (req, res) => {
+app.use(checkAccessToken(domain, audience));
+app.get('/api/external', checkPermission('read:auth'), (req, res) => {
   res.status(200).send({ message: 'Your Access Token was successfully validated!' });
 });
 
