@@ -6,6 +6,8 @@ const cookieParser = require('cookie-parser');
 const log4js = require('log4js');
 const cors = require('cors');
 const sanitizeHtml = require('sanitize-html');
+const jwt = require('express-jwt');
+const jwksRsa = require('jwks-rsa');
 const { Client } = require('base-api-io');
 const { checkEnvironment } = require('./utils');
 
@@ -16,12 +18,16 @@ const fromEmail = process.env.FROM_EMAIL || 'admin@rachelshawstudio.com';
 const userEmail = process.env.USER_EMAIL || null;
 const baseToken = process.env.BASE_ACCESS_TOKEN || null;
 const stripeToken = process.env.STRIPE_ACCESS_TOKEN || null;
+const domain = process.env.DOMAIN || null;
+const audience = process.env.AUDIENCE || null;
 
 // Check all required environment variables
 checkEnvironment({
   USER_EMAIL: userEmail,
   BASE_ACCESS_TOKEN: baseToken,
-  STRIPE_ACCESS_TOKEN: stripeToken
+  STRIPE_ACCESS_TOKEN: stripeToken,
+  DOMAIN: domain,
+  AUDIENCE: audience
 });
 
 // Build out clients
@@ -39,6 +45,20 @@ app.use(
 );
 app.use(express.urlencoded());
 app.use(cookieParser());
+
+// Auth Middleware
+const checkJwt = jwt({
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `https://${domain}/.well-known/jwks.json`
+  }),
+
+  audience,
+  issuer: `https://${domain}/`,
+  algorithm: ['RS256']
+});
 
 // Logging
 log4js.configure({
@@ -67,7 +87,7 @@ app.use(
   })
 );
 
-// Routes
+// Site routes
 app.post('/api/contact', async (req, res) => {
   const { firstName, lastName, email, message } = req.body;
 
@@ -101,6 +121,7 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
+// Payment routes
 app.post('/api/charge', async (req, res) => {
   try {
     const { token, email } = req.body;
@@ -118,6 +139,11 @@ app.post('/api/charge', async (req, res) => {
     console.log(err);
     res.status(500).send({ message: 'Failed to charge card' });
   }
+});
+
+// Auth routes
+app.get('/api/external', checkJwt, (req, res) => {
+  res.status(200).send({ message: 'Your Access Token was successfully validated!' });
 });
 
 app.listen(port, () => logger.info(`Listening on port ${port}`));
