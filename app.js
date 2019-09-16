@@ -146,4 +146,8 @@ app.get('/api/external', checkJwt, (req, res) => {
   res.status(200).send({ message: 'Your Access Token was successfully validated!' });
 });
 
+app.get('/api/noauth', (req, res) => {
+  res.status(200).send({ message: 'Your Access Token was successfully validated!' });
+});
+
 app.listen(port, () => logger.info(`Listening on port ${port}`));
