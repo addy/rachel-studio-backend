@@ -2311,16 +2311,16 @@ lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
 
-log4js@^5.1.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/log4js/-/log4js-5.1.0.tgz#3fa5372055a4c2611ab92d80496bffc100841508"
-  integrity sha512-QtXrBGZiIwfwBrH9zF2uQarvBuJ5+Icqx9fW+nQL4pnmPITJw8n6kh3bck5IkcTDBQatDeKqUMXXX41fp0TIqw==
+log4js@^5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/log4js/-/log4js-5.2.1.tgz#6f1fb8678f47dc3cc8f865ba978727cecc2dc1de"
+  integrity sha512-ON64KPqPO6njBKKJereIUJw7UdGXq8VZ+LOrokbENxQPENDeq0kUif1kMlTcsYdclRPK/9BB6w+82TTS51ICaA==
   dependencies:
     date-format "^2.1.0"
     debug "^4.1.1"
     flatted "^2.0.1"
     rfdc "^1.1.4"
-    streamroller "^2.1.0"
+    streamroller "^2.2.1"
 
 loose-envify@^1.0.0, loose-envify@^1.4.0:
   version "1.4.0"
@@ -3132,10 +3132,10 @@ sshpk@^1.7.0:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.5.0.tgz#161c7dac177659fd9811f43771fa99381478628c"
   integrity sha1-Fhx9rBd2Wf2YEfQ3cfqZOBR4Yow=
 
-streamroller@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/streamroller/-/streamroller-2.1.0.tgz#702de4dbba428c82ed3ffc87a75a21a61027e461"
-  integrity sha512-Ps7CuQL0RRG0YAigxNehrGfHrLu+jKSSnhiZBwF8uWi62WmtHDQV1OG5gVgV5SAzitcz1GrM3QVgnRO0mXV2hg==
+streamroller@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/streamroller/-/streamroller-2.2.1.tgz#c10e03e1c9601a3a1462ae00842ee5e443d79805"
+  integrity sha512-LkKpmGNQwHWGqvG4h6v/IEz3s+EoR/0PSX8q5Mv4yXlFWxxp3I6zGv/maCSzyFzbfWmm5HQdoZvrrPyHjxzg1Q==
   dependencies:
     date-format "^2.1.0"
     debug "^4.1.1"
