@@ -98,7 +98,6 @@ app.post('/api/contact', async (req, res) => {
     // Unfortunately, the from parameter will not work unless it has the same domain as the mail server.
     // Best way for now is to override with a bogus email (of the same domain) and make a note in the message body
     // who the email was really from.
-    console.log(title, fromEmail, userEmail, htmlText, basicText);
     await baseClient.emails.send(title, fromEmail, userEmail, htmlText, basicText);
     res.sendStatus(200);
   } catch (err) {
