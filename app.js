@@ -137,7 +137,7 @@ app.post('/api/contact', async (req, res) => {
 
 // // Payment routes
 app.post('/api/charge', async (req, res) => {
-  const { token, email, artID } = req.body;
+  const { token, email, artID, price } = req.body;
 
   try {
     const doc = await db.collection('art').findOne({ _id: ObjectId(artID) });
@@ -148,20 +148,23 @@ app.post('/api/charge', async (req, res) => {
     } else {
       // Process the payment through Stripe.
       await stripe.charges.create({
-        amount: doc.price * 100,
+        amount: price ? price * 100 : doc.price * 100,
         currency: 'usd',
-        description: doc.title,
+        description: `${doc.title}${price !== doc.price ? ' print' : ''} for ${email}`,
         source: token,
         receipt_email: email
       });
 
-      // Mark the art document as sold.
-      await db.collection('art').updateOne(
-        { _id: ObjectId(artID) },
-        {
-          $set: { sold: true }
-        }
-      );
+      // Not selling a print. I hate this.
+      if (price === doc.price) {
+        // Mark the art document as sold.
+        await db.collection('art').updateOne(
+          { _id: ObjectId(artID) },
+          {
+            $set: { sold: true }
+          }
+        );
+      }
 
       // Respond with the current ID so that the UI can self-update.
       res.status(200).send(artID);
