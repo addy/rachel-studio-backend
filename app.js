@@ -138,8 +138,6 @@ app.post('/api/contact', async (req, res) => {
 
   try {
     // Nodemailer is deprecating their rate limiter API, so I will do single connections until I can build out the rate limiter myself.
-    await transporter.verify();
-
     const message = {
       from: smtpUser,
       replyTo: email,
@@ -201,6 +199,9 @@ app.listen(port, async () => {
   try {
     const client = await MongoClient.connect(`mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}`, { useUnifiedTopology: true });
     db = client.db('art');
+
+    // Validate the transport once
+    await transporter.verify()
   } catch (err) {
     logger.error(err);
     throw new Error(`Could not connect to MongoDB`);
