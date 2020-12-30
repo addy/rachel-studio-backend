@@ -52,12 +52,12 @@ let db;
 
 // Middleware
 app.use(express.json());
-// app.use(
-//   cors({
-//     origin: 'https://rachelshawstudio.com',
-//     optionsSuccessStatus: 200
-//   })
-// );
+app.use(
+  cors({
+    origin: 'https://rachelshawstudio.com',
+    optionsSuccessStatus: 200
+  })
+);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
