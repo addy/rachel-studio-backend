@@ -2,21 +2,23 @@
 /* eslint-disable no-console */
 require('dotenv').config();
 const express = require('express');
+const nodemailer = require("nodemailer");
 const cookieParser = require('cookie-parser');
 const log4js = require('log4js');
 const cors = require('cors');
 const sanitizeHtml = require('sanitize-html');
 const { MongoClient, ObjectId } = require('mongodb');
-const { Client } = require('base-api-io');
 const { checkEnvironment } = require('./utils');
 
 // ENV config variables
 const port = process.env.PORT || 5000;
 const logDir = process.env.LOG_DIRECTORY || '/var/log/studio-backend-output.log';
-const fromEmail = process.env.FROM_EMAIL || 'admin@rachelshawstudio.com';
-const userEmail = process.env.USER_EMAIL || null;
-const baseToken = process.env.BASE_ACCESS_TOKEN || null;
 const stripeToken = process.env.STRIPE_ACCESS_TOKEN || null;
+const smtpHost = process.env.SMTP_HOST || null;
+const smtpPort = process.env.SMTP_PORT || '465';
+const smtpUser = process.env.SMTP_USER || null;
+const smtpPassword = process.env.SMTP_PASSWORD || null;
+const toEmail = process.env.TO_EMAIL || null;
 const mongoHost = process.env.MONGODB_HOST || 'localhost';
 const mongoPort = process.env.MONGODB_PORT || '27017';
 const mongoUser = process.env.MONGODB_USER || null;
@@ -24,29 +26,40 @@ const mongoPassword = process.env.MONGODB_PASSWORD || null;
 
 // Check all required environment variables
 checkEnvironment({
-  USER_EMAIL: userEmail,
-  BASE_ACCESS_TOKEN: baseToken,
   STRIPE_ACCESS_TOKEN: stripeToken,
+  SMTP_HOST: smtpHost,
+  SMTP_USER: smtpUser,
+  SMTP_PASSWORD: smtpPassword,
+  TO_EMAIL: toEmail,
   MONGODB_USER: mongoUser,
   MONGODB_PASSWORD: mongoPassword
 });
 
 // Build out clients
 const app = express();
-const baseClient = new Client(baseToken);
 const stripe = require('stripe')(stripeToken);
+const transporter = nodemailer.createTransport({
+  host: smtpHost,
+  port: smtpPort,
+  secure: true,
+  auth: {
+    user: smtpUser,
+    pass: smtpPassword,
+  },
+});
 
 let db;
 
 // Middleware
 app.use(express.json());
-app.use(
-  cors({
-    origin: 'https://rachelshawstudio.com',
-    optionsSuccessStatus: 200
-  })
-);
-app.use(express.urlencoded());
+// app.use(
+//   cors({
+//     origin: 'https://rachelshawstudio.com',
+//     optionsSuccessStatus: 200
+//   })
+// );
+
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Logging
@@ -114,20 +127,29 @@ app.post('/api/contact', async (req, res) => {
     allowedAttributes: {}
   });
 
-  // This is what $USER_EMAIL will see if their email client has HTML disabled.
-  const basicText = `Rachel Shaw Studio - Contact Form\nRespond to: ${email}\nMessage:\n${sanitizedText}`;
+  // And our trusty email subject.
+  const subject = `rachelshawstudio.com - Contact from (${lastName}, ${firstName} <${email}>)`;
+
+  // This is what $TO_EMAIL will see if their email client has HTML disabled.
+  const text = `Rachel Shaw Studio - Contact Form\nMessage:\n${sanitizedText}`;
 
   // This is the HTML version of the above.
-  const htmlText = `<h1>Rachel Shaw Studio - Contact Form</h1><h3>Respond to: ${email}</h3><p>${sanitizedText}</p><a href="rachelshawstudio.com">rachelshawstudio.com</a>`;
-
-  // And our trusty email title.
-  const title = `rachelshawstudio.com - Contact from (${lastName}, ${firstName} <${email}>)`;
+  const html = `<h1>Rachel Shaw Studio - Contact Form</h1><p>${sanitizedText}</p><a href="rachelshawstudio.com">rachelshawstudio.com</a>`;
 
   try {
-    // Unfortunately, the from parameter will not work unless it has the same domain as the mail server.
-    // Best way for now is to override with a bogus email (of the same domain) and make a note in the message body
-    // who the email was really from.
-    await baseClient.emails.send(title, fromEmail, userEmail, htmlText, basicText);
+    // Nodemailer is deprecating their rate limiter API, so I will do single connections until I can build out the rate limiter myself.
+    await transporter.verify();
+
+    const message = {
+      from: smtpUser,
+      replyTo: email,
+      to: toEmail,
+      subject,
+      text,
+      html,
+    };
+    
+    await transporter.sendMail(message);
     res.sendStatus(200);
   } catch (err) {
     logger.error(err);
@@ -175,12 +197,14 @@ app.post('/api/charge', async (req, res) => {
   }
 });
 
-MongoClient.connect(
-  `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}`,
-  (err, _db) => {
-    if (err) throw new Error(`Could not connect to MongoDB`);
-    db = _db.db('art');
+app.listen(port, async () => {
+  try {
+    const client = await MongoClient.connect(`mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}`, { useUnifiedTopology: true });
+    db = client.db('art');
+  } catch (err) {
+    logger.error(err);
+    throw new Error(`Could not connect to MongoDB`);
   }
-);
 
-app.listen(port, () => logger.info(`Listening on port ${port}`));
+  logger.info(`Listening on port ${port}`);
+});
