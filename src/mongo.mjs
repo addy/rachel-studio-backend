@@ -1,7 +1,8 @@
 import log4js from 'log4js';
-import { MongoClient, ObjectId } from 'mongodb';
+import MongoClient from 'mongodb';
 
 const logger = log4js.getLogger('mongo');
+const { ObjectId } = MongoClient;
 const collection = 'art';
 
 class Mongo {

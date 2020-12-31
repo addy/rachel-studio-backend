@@ -4,6 +4,8 @@
   "description": "Rachel's Studio Backend",
   "license": "MIT",
   "private": true,
+  "type": "module",
+  "main": "server.js",
   "dependencies": {
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
@@ -30,6 +32,6 @@
     "prettier": "^2.2.1"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node src/app.js"
   }
 }
