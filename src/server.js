@@ -4,6 +4,7 @@ import express from 'express';
 import log4js from 'log4js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import helmet from 'helmet';
 import Stripe from 'stripe';
 import Mongo from './mongo.js';
 import Transporter from './transporter.js';
@@ -55,13 +56,14 @@ const transporter = new Transporter(smtpHost, smtpPort, smtpUser, smtpPassword);
 const stripe = Stripe(stripeToken);
 
 // Middleware
-app.use(express.json());
 app.use(
   cors({
     origin: 'https://rachelshawstudio.com',
     optionsSuccessStatus: 200,
   })
 );
+app.use(helmet());
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
