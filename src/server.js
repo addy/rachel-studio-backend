@@ -1,12 +1,13 @@
+/* eslint-disable import/extensions */
 import dotenv from 'dotenv';
 import express from 'express';
 import log4js from 'log4js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import Stripe from 'stripe';
-import Mongo from './mongo.mjs';
-import Transporter from './transporter.mjs';
-import { checkEnvironment, createEmail } from './utils.mjs';
+import Mongo from './mongo.js';
+import Transporter from './transporter.js';
+import { checkEnvironment, createEmail } from './utils.js';
 
 // Configure dotenv, will be mostly dev going forward.
 dotenv.config();
