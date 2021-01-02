@@ -113,7 +113,7 @@ app.post('/api/contact', async (req, res) => {
 
   try {
     const transportMessage = createEmail(firstName, lastName, email, message);
-    await transporter.sendEmail(email, transportMessage);
+    await transporter.sendMail(email, transportMessage);
     res.sendStatus(200);
   } catch (err) {
     logger.error(err);
