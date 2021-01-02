@@ -12,6 +12,7 @@ class Transporter {
       host,
       port,
       secure: true,
+      pool: true,
       auth: {
         user,
         pass,
@@ -26,8 +27,7 @@ class Transporter {
     if (this.verified) return;
 
     try {
-      // TODO: Do something with this?
-      await this.verifiedPromise();
+      await this.verifiedPromise;
       this.verified = true;
     } catch (err) {
       logger.error(err);
@@ -36,6 +36,9 @@ class Transporter {
   };
 
   sendMail = async (replyTo, message) => {
+    // Attempt to verify the SMTP transport
+    await this.initialize();
+
     const { user, email, transporter } = this;
     const { subject, text, html } = message;
 
@@ -49,7 +52,6 @@ class Transporter {
     };
 
     try {
-      // TODO: Pool email connections?
       await transporter.sendMail(mail);
     } catch (err) {
       logger.error(err);

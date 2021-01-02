@@ -52,7 +52,7 @@ log4js.configure({
 const app = express();
 const logger = log4js.getLogger('app');
 const mongo = new Mongo(mongoHost, mongoPort, mongoUser, mongoPassword);
-const transporter = new Transporter(smtpHost, smtpPort, smtpUser, smtpPassword);
+const transporter = new Transporter(smtpHost, smtpPort, smtpUser, smtpPassword, toEmail);
 const stripe = Stripe(stripeToken);
 
 // Middleware
