@@ -13,21 +13,22 @@
     "express": "^4.17.1",
     "express-jwt": "^6.0.0",
     "helmet": "^4.3.1",
-    "jwks-rsa": "^1.12.1",
+    "jwks-rsa": "^1.12.2",
     "log4js": "^6.3.0",
     "mongodb": "^3.6.3",
     "nodemailer": "^6.4.17",
     "sanitize-html": "^2.3.0",
-    "stripe": "^8.129.0"
+    "stripe": "^8.130.0"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
-    "eslint": "7.16.0",
+    "eslint": "7.17.0",
     "eslint-config-airbnb": "18.2.1",
     "eslint-config-prettier": "^7.1.0",
+    "eslint-import-resolver-node": "^0.3.4",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsx-a11y": "6.4.1",
-    "eslint-plugin-prettier": "^3.3.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "7.22.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "prettier": "^2.2.1"
