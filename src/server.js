@@ -150,8 +150,9 @@ app.post('/api/charge', async (req, res) => {
         });
       }
 
-      // Respond with the current ID so that the UI can self-update.
-      res.status(200).send(artID);
+      // Respond with the document's ID so that the UI can self-update.
+      // eslint-disable-next-line no-underscore-dangle
+      res.status(200).send(document._id.toHexString());
     }
   } catch (err) {
     logger.error(err);
