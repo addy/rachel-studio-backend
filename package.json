@@ -16,7 +16,7 @@
     "jwks-rsa": "^1.12.2",
     "log4js": "^6.3.0",
     "mongodb": "^3.6.3",
-    "nodemailer": "^6.4.17",
+    "nodemailer": "^6.5.0",
     "sanitize-html": "^2.3.0",
     "stripe": "^8.130.0"
   },
