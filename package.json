@@ -18,7 +18,7 @@
     "mongodb": "^3.6.3",
     "nodemailer": "^6.4.17",
     "sanitize-html": "^2.3.0",
-    "stripe": "^8.130.0"
+    "stripe": "^8.155.0"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
